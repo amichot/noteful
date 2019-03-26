@@ -1,0 +1,26 @@
+.NoteItem {
+	margin-bottom: 8px;
+	max-width: 380px;
+	padding: 8px 0 8px 8px;
+	position: relative;
+	text-decoration: none;
+	border: 2px solid black;
+}
+
+.NoteItem__title {
+	font-family: var(--custom-font);
+	font-size: 20px;
+	margin: 0;
+	max-width: 80%;
+	min-height: 24px;
+}
+.NoteItem__title {
+	display: block;
+	text-decoration: none;
+}
+
+.Note__dates {
+	bottom: 8px;
+	font-size: 14px;
+	position: absolute;
+}

@@ -1,0 +1,12 @@
+.notesList {
+	list-style-type: none;
+	margin: 0;
+	padding: 10px;
+	text-decoration: none;
+}
+
+.MainMain__noteLink {
+	text-decoration: none;
+	color: black;
+	border-bottom: 2px solid black;
+}
