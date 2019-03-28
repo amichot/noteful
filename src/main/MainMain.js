@@ -3,20 +3,30 @@ import React, { Component } from "react";
 import { NavLink } from "react-router-dom";
 //components
 import NoteItem from "./NoteItem";
+//helperfunctions
+import { getNotesForFolder } from "../notes-helpers";
+//context
+import NotefulsContext from "../NotefulsContext";
 //css
 import "./MainMain.css";
 
 class MainMain extends Component {
+	static contextType = NotefulsContext;
+
 	static defaultProps = {
-		notes: []
+		match: {
+			params: {}
+		}
 	};
 
 	render() {
-		const notes = this.props.notes;
+		const { folderId } = this.props.match.params;
+		const { notes = [] } = this.context;
+		const notesForFolder = getNotesForFolder(notes, folderId);
 		return (
 			<section>
 				<ul className='notesList' aria-live='polite'>
-					{notes.map(note => (
+					{notesForFolder.map(note => (
 						<NavLink className='MainMain__noteLink' to={`/note/${note.id}`}>
 							<NoteItem key={note.id} {...note} />
 						</NavLink>
