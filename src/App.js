@@ -22,7 +22,7 @@ class App extends Component {
 	};
 
 	setFolder = folders => {
-		this.setState({ folders: [...folders, { id: 5 }], error: null });
+		this.setState({ folders: [...folders], error: null });
 	};
 
 	setNotes = notes => {
@@ -74,10 +74,18 @@ class App extends Component {
 	};
 
 	renderNavRoutes() {
+		const { notes, folders } = this.state;
 		return (
 			<>
 				{["/", "/folder/:folderId"].map(path => (
-					<Route exact key={path} path={path} component={MainSidebar} />
+					<Route
+						exact
+						key={path}
+						path={path}
+						render={routeProps => (
+							<MainSidebar folders={folders} notes={notes} {...routeProps} />
+						)}
+					/>
 				))}
 
 				<Route path='/note/:noteId' component={NoteSidebar} />
@@ -95,8 +103,28 @@ class App extends Component {
 				))}
 
 				<Route path='/note/:noteId' component={NoteMain} />
-				<Route path='/add-folder' component={AddFolder} />
-				<Route path='/add-note' component={AddNote} />
+				<Route
+					path='/add-folder'
+					render={routeProps => {
+						return (
+							<AddFolder
+								{...routeProps}
+								folders={this.state.folders}
+								addFolder={this.handleAddFolder}
+							/>
+						);
+					}}
+				/>
+				<Route
+					path='/add-note'
+					render={routeProps => (
+						<AddNote
+							{...routeProps}
+							addNote={this.handleAddNote}
+							folders={this.state.folders}
+						/>
+					)}
+				/>
 			</>
 		);
 	}

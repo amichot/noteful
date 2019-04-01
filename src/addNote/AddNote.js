@@ -1,20 +1,23 @@
+//dependencies
 import React, { Component } from "react";
-import NotefulsContext from "../NotefulsContext";
+import { withRouter } from "react-router-dom";
+import p from "prop-types";
+//handle Errors
 import ValidationError from "../errorboundary/ValidationError";
+//css
 import "./AddNote.css";
-
-export default class AddNote extends Component {
+class AddNote extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			name: "",
-			folderId: "",
+			folder: "",
 			nameValid: false,
-			folderIdValid: false,
+			folderValid: false,
 			formValid: false,
 			validationMessages: {
 				name: "",
-				folderId: ""
+				folder: ""
 			}
 		};
 	}
@@ -25,15 +28,15 @@ export default class AddNote extends Component {
 		});
 	}
 
-	updatefolderId(folderId) {
-		this.setState({ folderId }, () => {
-			this.validatefolderId(folderId);
+	updateFolder(folder) {
+		this.setState({ folder }, () => {
+			this.validateFolder(folder);
 		});
 	}
 
 	formValid() {
 		this.setState({
-			formValid: this.state.nameValid
+			formValid: this.state.nameValid && this.state.folderValid
 		});
 	}
 
@@ -42,7 +45,6 @@ export default class AddNote extends Component {
 			push: () => {}
 		}
 	};
-	static contextType = NotefulsContext;
 
 	handleSubmit = e => {
 		e.preventDefault();
@@ -67,7 +69,7 @@ export default class AddNote extends Component {
 				return res.json();
 			})
 			.then(note => {
-				this.context.addNote(note);
+				this.props.addNote(note);
 				this.props.history.push(`/folder/${note.folderId}`);
 			})
 			.catch(error => {
@@ -96,8 +98,32 @@ export default class AddNote extends Component {
 			this.formValid
 		);
 	};
+	validateFolder = fieldValue => {
+		const fieldErrors = { ...this.state.validationMessages };
+		let hasError = false;
+
+		fieldValue = fieldValue.trim();
+		this.props.folders.forEach(folder => {
+			if (folder.id === fieldValue) {
+				fieldErrors.folder = "";
+				hasError = false;
+			}
+		});
+		if (hasError === true) {
+			fieldErrors.folder = "Must select a folder";
+			hasError = true;
+		}
+
+		this.setState(
+			{
+				validationMessages: fieldErrors,
+				folderValid: !hasError
+			},
+			this.formValid
+		);
+	};
 	render() {
-		const folders = this.context;
+		const folders = this.props.folders;
 		return (
 			<section className='AddNote'>
 				<h2>Create a note</h2>
@@ -121,7 +147,10 @@ export default class AddNote extends Component {
 					</div>
 					<div className='field'>
 						<label htmlFor='note-folder-select'>Folder</label>
-						<select id='note-folder-select' name='note-folder-id'>
+						<select
+							id='note-folder-select'
+							name='note-folder-id'
+							onChange={e => this.updateFolder(e.target.value)}>
 							<option value={null}>...</option>
 							{folders.map(folder => (
 								<option key={folder.id} value={folder.id}>
@@ -129,6 +158,10 @@ export default class AddNote extends Component {
 								</option>
 							))}
 						</select>
+						<ValidationError
+							hasError={!this.state.folderValid}
+							message={this.state.validationMessages.folder}
+						/>
 					</div>
 					<div className='buttons'>
 						<button
@@ -143,3 +176,13 @@ export default class AddNote extends Component {
 		);
 	}
 }
+
+AddNote.propTypes = {
+	folders: p.arrayOf(
+		p.shape({
+			id: p.string.isRequired,
+			name: p.string.isRequired
+		})
+	)
+};
+export default withRouter(AddNote);

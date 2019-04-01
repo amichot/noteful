@@ -1,16 +1,42 @@
 //dependencies
 import React, { Component } from "react";
-import NotefulsContext from "../NotefulsContext";
+import { withRouter } from "react-router-dom";
+import p from "prop-types";
+//handle Errors
+import ValidationError from "../errorboundary/ValidationError";
 //css
 import "./AddFolder.css";
 
-export default class AddFolder extends Component {
+class AddFolder extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			name: "",
+			nameValid: false,
+			formValid: false,
+			validationMessages: {
+				name: ""
+			}
+		};
+	}
+
+	updateName(name) {
+		this.setState({ name }, () => {
+			this.validateName(name);
+		});
+	}
+
+	formValid() {
+		this.setState({
+			formValid: this.state.nameValid
+		});
+	}
+
 	static defaultProps = {
 		history: {
 			push: () => {}
 		}
 	};
-	static contextType = NotefulsContext;
 
 	handleSubmit = e => {
 		e.preventDefault();
@@ -31,13 +57,41 @@ export default class AddFolder extends Component {
 				return res.json();
 			})
 			.then(folder => {
-				this.context.addFolder(folder);
+				this.props.addFolder(folder);
 				this.props.history.push(`/folder/${folder.id}`);
 			})
 			.catch(error => {
 				console.error({ error });
 			});
 	};
+
+	validateName = fieldValue => {
+		const fieldErrors = { ...this.state.validationMessages };
+		let hasError = false;
+
+		fieldValue = fieldValue.trim();
+		if (fieldValue.length === 0) {
+			fieldErrors.name = "Name is required";
+			hasError = true;
+		}
+		this.props.folders.forEach(folder => {
+			console.log(folder.name);
+			console.log(fieldValue);
+			if (folder.name === fieldValue) {
+				fieldErrors.name = "There is already a folder with this name";
+				hasError = true;
+			}
+		});
+
+		this.setState(
+			{
+				validationMessages: fieldErrors,
+				nameValid: !hasError
+			},
+			this.formValid
+		);
+	};
+
 	render() {
 		return (
 			<section className='AddFolder'>
@@ -48,13 +102,34 @@ export default class AddFolder extends Component {
 					onSubmit={this.handleSubmit}>
 					<div className='field'>
 						<label htmlFor='folder-name-input'>Name</label>
-						<input type='text' id='folder-name-input' name='folder-name' />
+						<input
+							type='text'
+							id='folder-name-input'
+							name='folder-name'
+							onChange={e => this.updateName(e.target.value)}
+							required
+						/>
+						<ValidationError
+							hasError={!this.state.nameValid}
+							message={this.state.validationMessages.name}
+						/>
 					</div>
 					<div className='buttons'>
-						<button type='submit'>Add folder</button>
+						<button type='submit' disabled={!this.state.formValid}>
+							Add folder
+						</button>
 					</div>
 				</form>
 			</section>
 		);
 	}
 }
+AddFolder.propTypes = {
+	folders: p.arrayOf(
+		p.shape({
+			id: p.string.isRequired,
+			name: p.string.isRequired
+		})
+	)
+};
+export default withRouter(AddFolder);
