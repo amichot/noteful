@@ -1,6 +1,6 @@
 //dependencies
 import React, { Component } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 //components
 import NoteItem from "./NoteItem";
 //helperfunctions
@@ -31,6 +31,9 @@ class MainMain extends Component {
 							<NoteItem key={note.id} {...note} />
 						</NavLink>
 					))}
+					<Link to='/add-Note' type='button' className='add-Note-button'>
+						Add Note
+					</Link>
 				</ul>
 			</section>
 		);

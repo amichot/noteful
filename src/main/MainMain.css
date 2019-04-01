@@ -10,3 +10,11 @@
 	color: black;
 	border-bottom: 2px solid black;
 }
+
+.add-note-button {
+	max-width: 140px;
+	margin-right: 16px;
+	color: rgb(58, 57, 57);
+	border: 3px solid rgb(116, 139, 241);
+	text-align: center;
+}

@@ -1,6 +1,6 @@
 //dependencies
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 //components
 import FolderItem from "./FolderItem";
 //context
@@ -26,6 +26,9 @@ export default class MainSidebar extends React.Component {
 							<FolderItem key={folder.id} {...folder} />
 						</NavLink>
 					))}
+					<Link to='/add-folder' type='button' className='add-folder-button'>
+						Add Folder
+					</Link>
 				</ul>
 			</div>
 		);

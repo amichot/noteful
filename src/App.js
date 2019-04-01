@@ -6,6 +6,9 @@ import MainMain from "./main/MainMain";
 import MainSidebar from "./sidebar/MainSidebar";
 import NoteSidebar from "./sidebar/NoteSidebar";
 import NoteMain from "./main/NoteMain";
+import AddFolder from "./addFolder/AddFolder";
+import AddNote from "./addNote/AddNote";
+import NoteError from "./errorboundary/NoteError";
 //Context
 import NotefulsContext from "./NotefulsContext";
 //css
@@ -19,7 +22,7 @@ class App extends Component {
 	};
 
 	setFolder = folders => {
-		this.setState({ folders, error: null });
+		this.setState({ folders: [...folders, { id: 5 }], error: null });
 	};
 
 	setNotes = notes => {
@@ -52,11 +55,23 @@ class App extends Component {
 			.then(this.setNotes);
 	}
 
+	handleAddFolder = folder => {
+		this.setState({
+			folders: [...this.state.folders, folder]
+		});
+	};
+
+	handleAddNote = note => {
+		this.setState({
+			notes: [...this.state.notes, note]
+		});
+	};
+
 	handleDeleteNote = noteId => {
-    this.setState({
-      notes: this.state.notes.filter(note => note.id !== noteId)
-    })
-  }
+		this.setState({
+			notes: this.state.notes.filter(note => note.id !== noteId)
+		});
+	};
 
 	renderNavRoutes() {
 		return (
@@ -66,6 +81,8 @@ class App extends Component {
 				))}
 
 				<Route path='/note/:noteId' component={NoteSidebar} />
+				<Route path='/add-folder' component={NoteSidebar} />
+				<Route path='/add-note' component={NoteSidebar} />
 			</>
 		);
 	}
@@ -78,6 +95,8 @@ class App extends Component {
 				))}
 
 				<Route path='/note/:noteId' component={NoteMain} />
+				<Route path='/add-folder' component={AddFolder} />
+				<Route path='/add-note' component={AddNote} />
 			</>
 		);
 	}
@@ -86,19 +105,25 @@ class App extends Component {
 		const contextValue = {
 			folders: this.state.folders,
 			notes: this.state.notes,
-			deleteNote: this.handleDeleteNote
+			deleteNote: this.handleDeleteNote,
+			addFolder: this.handleAddFolder,
+			addNote: this.handleAddNote
 		};
-		
+
 		return (
 			<NotefulsContext.Provider value={contextValue}>
 				<div className='App'>
-					<nav className='App__nav'>{this.renderNavRoutes()}</nav>
+					<NoteError>
+						<nav className='App__nav'>{this.renderNavRoutes()}</nav>
+					</NoteError>
 					<header className='App__header'>
 						<h1>
 							<Link to='/'>Noteful</Link>
 						</h1>
 					</header>
-					<main className='App__main'>{this.renderMainRoutes()}</main>
+					<NoteError>
+						<main className='App__main'>{this.renderMainRoutes()}</main>
+					</NoteError>
 				</div>
 			</NotefulsContext.Provider>
 		);
