@@ -24,6 +24,15 @@
     "not ie <= 11",
     "not op_mini all"
   ],
+  "prettier": {
+    "bracketSpacing": false,
+    "parser": "typescript",
+    "printWidth": 80,
+    "singleQuote": true,
+    "semi": true,
+    "tabWidth": 2,
+    "trailingComma": "es5"
+  },
   "devDependencies": {
     "@babel/core": "^7.4.0"
   }

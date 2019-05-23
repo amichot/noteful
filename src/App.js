@@ -1,161 +1,183 @@
 //dependencies
-import React, { Component } from "react";
-import { Route, Link } from "react-router-dom";
+import React, {Component} from 'react';
+import {Route, Link} from 'react-router-dom';
 //components
-import MainMain from "./main/MainMain";
-import MainSidebar from "./sidebar/MainSidebar";
-import NoteSidebar from "./sidebar/NoteSidebar";
-import NoteMain from "./main/NoteMain";
-import AddFolder from "./addFolder/AddFolder";
-import AddNote from "./addNote/AddNote";
-import NoteError from "./errorboundary/NoteError";
+import MainMain from './main/MainMain';
+import MainSidebar from './sidebar/MainSidebar';
+import NoteSidebar from './sidebar/NoteSidebar';
+import NoteMain from './main/NoteMain';
+import AddFolder from './addFolder/AddFolder.js';
+import AddNote from './addNote/AddNote';
+import NoteError from './errorboundary/NoteError';
+import UpdateNote from './updateNote/UpdateNote';
 //Context
-import NotefulsContext from "./NotefulsContext";
+import NotefulsContext from './NotefulsContext';
 //css
-import "./App.css";
+import './App.css';
 
 class App extends Component {
-	state = {
-		notes: [],
-		folders: [],
-		error: null
-	};
+  state = {
+    notes: [],
+    folders: [],
+    error: null,
+  };
 
-	setFolder = folders => {
-		this.setState({ folders: [...folders], error: null });
-	};
+  setFolder = folders => {
+    this.setState({folders, error: null});
+  };
 
-	setNotes = notes => {
-		this.setState({ notes, error: null });
-	};
+  setNotes = notes => {
+    this.setState({notes, error: null});
+  };
 
-	handleDeleteNote = noteId => {
-		this.setState({
-			notes: this.state.notes.filter(note => note.id !== noteId)
-		});
-	};
+  handleDeleteNote = noteId => {
+    this.setState({
+      notes: this.state.notes.filter(note => note.id !== noteId),
+    });
+  };
 
-	componentDidMount() {
-		fetch("http://localhost:9090/folders")
-			.then(res => {
-				if (!res.ok) {
-					throw new Error(res.status);
-				}
-				return res.json();
-			})
-			.then(this.setFolder);
+  componentDidMount() {
+    fetch('http://localhost:8000/api/folder')
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(res.status);
+        }
+        return res.json();
+      })
+      .then(this.setFolder);
 
-		fetch("http://localhost:9090/notes")
-			.then(res => {
-				if (!res.ok) {
-					throw new Error(res.status);
-				}
-				return res.json();
-			})
-			.then(this.setNotes);
-	}
+    fetch('http://localhost:8000/api/note')
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(res.status);
+        }
+        return res.json();
+      })
+      .then(this.setNotes);
+  }
 
-	handleAddFolder = folder => {
-		this.setState({
-			folders: [...this.state.folders, folder]
-		});
-	};
+  handleAddFolder = folder => {
+    this.setState({
+      folders: [...this.state.folders, folder],
+    });
+  };
 
-	handleAddNote = note => {
-		this.setState({
-			notes: [...this.state.notes, note]
-		});
-	};
+  handleAddNote = note => {
+    this.setState({
+      notes: [...this.state.notes, note],
+    });
+  };
 
-	handleDeleteNote = noteId => {
-		this.setState({
-			notes: this.state.notes.filter(note => note.id !== noteId)
-		});
-	};
+  handleDeleteNote = noteId => {
+    this.setState({
+      notes: this.state.notes.filter(note => note.id !== noteId),
+    });
+  };
 
-	renderNavRoutes() {
-		const { notes, folders } = this.state;
-		return (
-			<>
-				{["/", "/folder/:folderId"].map(path => (
-					<Route
-						exact
-						key={path}
-						path={path}
-						render={routeProps => (
-							<MainSidebar folders={folders} notes={notes} {...routeProps} />
-						)}
-					/>
-				))}
+  handleUpdateNote = updatedNote => {
+    const newNotes = this.state.notes.map(note =>
+      note.id === updatedNote.id ? updatedNote : note
+    );
+    this.setState({
+      notes: newNotes,
+    });
+  };
 
-				<Route path='/note/:noteId' component={NoteSidebar} />
-				<Route path='/add-folder' component={NoteSidebar} />
-				<Route path='/add-note' component={NoteSidebar} />
-			</>
-		);
-	}
+  renderNavRoutes() {
+    const {notes, folders} = this.state;
+    return (
+      <div>
+        {['/', '/folder/:folderId'].map(path => (
+          <Route
+            exact
+            key={path}
+            path={path}
+            render={routeProps => (
+              <MainSidebar folders={folders} notes={notes} {...routeProps} />
+            )}
+          />
+        ))}
 
-	renderMainRoutes() {
-		return (
-			<>
-				{["/", "/folder/:folderId"].map(path => (
-					<Route exact key={path} path={path} component={MainMain} />
-				))}
+        <Route path="/note/:noteId" component={NoteSidebar} />
+        <Route path="/add-folder" component={NoteSidebar} />
+        <Route path="/add-note" component={NoteSidebar} />
+        <Route path="/update-note" component={NoteSidebar} />
+      </div>
+    );
+  }
 
-				<Route path='/note/:noteId' component={NoteMain} />
-				<Route
-					path='/add-folder'
-					render={routeProps => {
-						return (
-							<AddFolder
-								{...routeProps}
-								folders={this.state.folders}
-								addFolder={this.handleAddFolder}
-							/>
-						);
-					}}
-				/>
-				<Route
-					path='/add-note'
-					render={routeProps => (
-						<AddNote
-							{...routeProps}
-							addNote={this.handleAddNote}
-							folders={this.state.folders}
-						/>
-					)}
-				/>
-			</>
-		);
-	}
+  renderMainRoutes() {
+    return (
+      <div>
+        {['/', '/folder/:folderId'].map(path => (
+          <Route exact key={path} path={path} component={MainMain} />
+        ))}
 
-	render() {
-		const contextValue = {
-			folders: this.state.folders,
-			notes: this.state.notes,
-			deleteNote: this.handleDeleteNote,
-			addFolder: this.handleAddFolder,
-			addNote: this.handleAddNote
-		};
+        <Route path="/note/:noteId" component={NoteMain} />
+        <Route
+          path="/add-folder"
+          render={routeProps => {
+            return (
+              <AddFolder
+                {...routeProps}
+                folders={this.state.folders}
+                addFolder={this.handleAddFolder}
+              />
+            );
+          }}
+        />
+        <Route
+          path="/add-note"
+          render={routeProps => (
+            <AddNote
+              {...routeProps}
+              addNote={this.handleAddNote}
+              folders={this.state.folders}
+            />
+          )}
+        />
+        <Route
+          path="/update-note/:noteId"
+          render={routeProps => (
+            <UpdateNote
+              {...routeProps}
+              updateNote={this.handleUpdateNote}
+              folders={this.state.folders}
+            />
+          )}
+        />
+      </div>
+    );
+  }
 
-		return (
-			<NotefulsContext.Provider value={contextValue}>
-				<div className='App'>
-					<NoteError>
-						<nav className='App__nav'>{this.renderNavRoutes()}</nav>
-					</NoteError>
-					<header className='App__header'>
-						<h1>
-							<Link to='/'>Noteful</Link>
-						</h1>
-					</header>
-					<NoteError>
-						<main className='App__main'>{this.renderMainRoutes()}</main>
-					</NoteError>
-				</div>
-			</NotefulsContext.Provider>
-		);
-	}
+  render() {
+    const contextValue = {
+      folders: this.state.folders,
+      notes: this.state.notes,
+      deleteNote: this.handleDeleteNote,
+      addFolder: this.handleAddFolder,
+      addNote: this.handleAddNote,
+      updateNote: this.handleUpdateNote,
+    };
+
+    return (
+      <NotefulsContext.Provider value={contextValue}>
+        <div className="App">
+          <NoteError>
+            <nav className="App__nav">{this.renderNavRoutes()}</nav>
+          </NoteError>
+          <header className="App__header">
+            <h1>
+              <Link to="/">Noteful</Link>
+            </h1>
+          </header>
+          <NoteError>
+            <main className="App__main">{this.renderMainRoutes()}</main>
+          </NoteError>
+        </div>
+      </NotefulsContext.Provider>
+    );
+  }
 }
 
 export default App;

@@ -1,26 +1,38 @@
 //dependencies
 import React, {Component} from 'react';
 import {withRouter} from 'react-router-dom';
-import p from 'prop-types';
+import PropTypes from 'prop-types';
+//helper functions
+import {findFolder} from '../notes-helpers';
 //handle Errors
 import ValidationError from '../errorboundary/ValidationError';
 //css
-import './AddNote.css';
-class AddNote extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
+import '../addNote/AddNote.css';
+class UpdateNote extends Component {
+  state = {
+    id: '',
+    name: '',
+    folder_id: '',
+    content: '',
+    nameValid: false,
+    formValid: false,
+    validationMessages: {
       name: '',
-      folder: '',
-      nameValid: false,
-      folderValid: false,
-      formValid: false,
-      validationMessages: {
-        name: '',
-        folder: '',
-      },
-    };
-  }
+    },
+  };
+
+  static propTypes = {
+    match: PropTypes.shape({
+      params: PropTypes.object,
+    }),
+    history: PropTypes.shape({
+      push: PropTypes.func,
+    }).isRequired,
+    id: PropTypes.number,
+    name: PropTypes.string,
+    folder_id: PropTypes.number,
+    content: PropTypes.string,
+  };
 
   updateName(name) {
     this.setState({name}, () => {
@@ -28,23 +40,39 @@ class AddNote extends Component {
     });
   }
 
-  updateFolder(folder) {
-    this.setState({folder}, () => {
-      this.validateFolder(folder);
-    });
+  updateContent(content) {
+    this.setState({content});
+  }
+
+  updateFolder(folder_id) {
+    this.setState({folder_id});
   }
 
   formValid() {
     this.setState({
-      formValid: this.state.nameValid && this.state.folderValid,
+      formValid: this.state.nameValid,
     });
   }
 
-  static defaultProps = {
-    history: {
-      push: () => {},
-    },
-  };
+  componentDidMount() {
+    const {noteId} = this.props.match.params;
+    fetch('http://localhost:8000/api/note/' + noteId, {
+      method: 'GET',
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(error => Promise.reject(error));
+
+        return res.json();
+      })
+      .then(responseData => {
+        this.updateName(responseData.name);
+        this.updateFolder(responseData.folder_id);
+        this.updateContent(responseData.content);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
 
   handleSubmit = e => {
     e.preventDefault();
@@ -54,23 +82,24 @@ class AddNote extends Component {
       folderId: e.target['note-folder-id'].value,
       modified: new Date(),
     };
-
-    fetch('http://localhost:8000/api/note', {
-      method: 'POST',
+    const {noteId} = this.props.match.params;
+    fetch('https://localhost:8000/api/note/' + noteId, {
+      method: 'PATCH',
       headers: {
         'content-type': 'application/json',
       },
       body: JSON.stringify(newNote),
     })
       .then(res => {
+        console.log(res.json());
         if (!res.ok) {
           return res.json().then(e => Promise.reject(e));
         }
+        console.log(res.json());
         return res.json();
       })
       .then(note => {
-        this.props.addNote(note);
-        this.props.history.push(`/folder/${note.folderId}`);
+        this.context.updateNote(note);
       })
       .catch(error => {
         console.error({error});
@@ -98,42 +127,27 @@ class AddNote extends Component {
       this.formValid
     );
   };
-  validateFolder = fieldValue => {
-    const fieldErrors = {...this.state.validationMessages};
-    let hasError = false;
 
-    fieldValue = fieldValue.trim();
-    this.props.folders.forEach(folder => {
-      if (folder.id === fieldValue) {
-        fieldErrors.folder = '';
-        hasError = false;
-      }
-    });
-    if (hasError === true) {
-      fieldErrors.folder = 'Must select a folder';
-      hasError = true;
-    }
-
-    this.setState(
-      {
-        validationMessages: fieldErrors,
-        folderValid: !hasError,
-      },
-      this.formValid
-    );
-  };
   render() {
-    const folders = this.props.folders;
+    const {folders} = setTimeout(() => this.props.folders, 3000);
+    console.log(folders);
+    const getFolder = setTimeout(
+      () => findFolder(folders, this.state.folder_id),
+      4000
+    );
+    console.log(folders);
+    const {name} = this.state;
     return (
       <section className="AddNote">
         <h2>Create a note</h2>
-        <form className="addnote-form" action="#" onSubmit={this.handleSubmit}>
+        <form className="editnote-form" action="#" onSubmit={this.handleSubmit}>
           <div className="field">
             <label htmlFor="note-name-input">Name</label>
             <input
               type="text"
               id="note-name-input"
               name="note-name"
+              defaultValue={name}
               onChange={e => this.updateName(e.target.value)}
             />
             <ValidationError
@@ -143,16 +157,21 @@ class AddNote extends Component {
           </div>
           <div className="field">
             <label htmlFor="note-content-input">Content</label>
-            <textarea id="note-content-input" name="note-content" />
+            <textarea
+              id="note-content-input"
+              name="note-content"
+              value={this.state.content}
+              onChange={e => this.updateContent(e.target.value)}
+            />
           </div>
           <div className="field">
             <label htmlFor="note-folder-select">Folder</label>
             <select
               id="note-folder-select"
               name="note-folder-id"
+              selected={getFolder.name}
               onChange={e => this.updateFolder(e.target.value)}
             >
-              <option value={null}>...</option>
               {folders.map(folder => (
                 <option key={folder.id} value={folder.id}>
                   {folder.name}
@@ -170,7 +189,7 @@ class AddNote extends Component {
               className="registration__button"
               disabled={!this.state.formValid}
             >
-              Add note
+              Add edited note
             </button>
           </div>
         </form>
@@ -179,12 +198,4 @@ class AddNote extends Component {
   }
 }
 
-AddNote.propTypes = {
-  folders: p.arrayOf(
-    p.shape({
-      id: p.string.isRequired,
-      name: p.string.isRequired,
-    })
-  ),
-};
-export default withRouter(AddNote);
+export default withRouter(UpdateNote);

@@ -1,9 +1,12 @@
-import React from "react";
+import React from 'react';
 
 const NotefulsContext = React.createContext({
-	folders: [],
-	notes: [],
-	deleteNote: () => {}
+  folders: [],
+  notes: [],
+  addFolder: () => {},
+  addNote: () => {},
+  updateNote: () => {},
+  deleteNote: () => {},
 });
 
 export default NotefulsContext;
