@@ -19,14 +19,16 @@ export default class NoteMain extends React.Component {
   render() {
     const {notes = []} = this.context;
     const {noteId} = this.props.match.params;
-    const note = findNote(notes, noteId) || {content: ''};
-    console.log(note);
+    const note = findNote(notes, noteId);
+    
     return (
       <section>
         <ul className="noteMain" aria-live="polite">
           {note && (
             <li className="NoteItem" key={note.id}>
-              <h3 className="NoteItem__title">{note.name}</h3>
+              <h3 className="NoteItem__title">
+                {findNote(notes, noteId).name}
+              </h3>
               <p className="NoteItem__date">
                 Date modified on <time>{note.modified}</time>
               </p>

@@ -1,6 +1,8 @@
 //dependencies
 import React, {Component} from 'react';
 import {Route, Link} from 'react-router-dom';
+//config
+import config from './config';
 //components
 import MainMain from './main/MainMain';
 import MainSidebar from './sidebar/MainSidebar';
@@ -36,26 +38,6 @@ class App extends Component {
     });
   };
 
-  componentDidMount() {
-    fetch('http://localhost:8000/api/folder')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(res.status);
-        }
-        return res.json();
-      })
-      .then(this.setFolder);
-
-    fetch('http://localhost:8000/api/note')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(res.status);
-        }
-        return res.json();
-      })
-      .then(this.setNotes);
-  }
-
   handleAddFolder = folder => {
     this.setState({
       folders: [...this.state.folders, folder],
@@ -68,11 +50,37 @@ class App extends Component {
     });
   };
 
-  handleDeleteNote = noteId => {
-    this.setState({
-      notes: this.state.notes.filter(note => note.id !== noteId),
-    });
-  };
+  componentDidMount() {
+    fetch(config.API_ENDPOINT_FOLDER, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: `Bearer ${config.API_KEY}`,
+      },
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(res.status);
+        }
+        return res.json();
+      })
+      .then(this.setFolder);
+
+    fetch(config.API_ENDPOINT_NOTE, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${config.API_KEY}`,
+      },
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(res.status);
+        }
+        return res.json();
+      })
+      .then(this.setNotes);
+  }
 
   handleUpdateNote = updatedNote => {
     const newNotes = this.state.notes.map(note =>
@@ -84,7 +92,8 @@ class App extends Component {
   };
 
   renderNavRoutes() {
-    const {notes, folders} = this.state;
+    const notes = this.state.notes;
+    const folders = this.state.folders;
     return (
       <div>
         {['/', '/folder/:folderId'].map(path => (
@@ -161,8 +170,8 @@ class App extends Component {
     };
 
     return (
-      <NotefulsContext.Provider value={contextValue}>
-        <div className="App">
+      <main className="App">
+        <NotefulsContext.Provider value={contextValue}>
           <NoteError>
             <nav className="App__nav">{this.renderNavRoutes()}</nav>
           </NoteError>
@@ -174,8 +183,8 @@ class App extends Component {
           <NoteError>
             <main className="App__main">{this.renderMainRoutes()}</main>
           </NoteError>
-        </div>
-      </NotefulsContext.Provider>
+        </NotefulsContext.Provider>
+      </main>
     );
   }
 }

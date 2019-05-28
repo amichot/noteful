@@ -1,26 +1,37 @@
 //dependencies
 import React, {Component} from 'react';
 import {withRouter} from 'react-router-dom';
-import p from 'prop-types';
+import PropTypes from 'prop-types';
+//config
+import config from '../config';
+//helper function
+import {findFolder} from '../notes-helpers';
+//context
+import NotefulsContext from '../NotefulsContext';
 //handle Errors
 import ValidationError from '../errorboundary/ValidationError';
 //css
 import './AddNote.css';
 class AddNote extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
+  state = {
+    name: '',
+    folder: '',
+    nameValid: false,
+    folderValid: false,
+    formValid: false,
+    validationMessages: {
       name: '',
       folder: '',
-      nameValid: false,
-      folderValid: false,
-      formValid: false,
-      validationMessages: {
-        name: '',
-        folder: '',
-      },
-    };
-  }
+    },
+  };
+  static propTypes = {
+    match: PropTypes.shape({
+      params: PropTypes.object,
+    }),
+    history: PropTypes.shape({
+      push: PropTypes.func,
+    }).isRequired,
+  };
 
   updateName(name) {
     this.setState({name}, () => {
@@ -40,27 +51,21 @@ class AddNote extends Component {
     });
   }
 
-  static defaultProps = {
-    history: {
-      push: () => {},
-    },
-  };
-
   handleSubmit = e => {
     e.preventDefault();
     const newNote = {
       name: e.target['note-name'].value,
       content: e.target['note-content'].value,
-      folderId: e.target['note-folder-id'].value,
-      modified: new Date(),
+      folder_id: e.target['note-folder-id'].value,
     };
-
-    fetch('http://localhost:8000/api/note', {
+    //prettier-ignore
+    fetch(config.API_ENDPOINT_NOTE, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
+        'authorization': `Bearer ${config.API_KEY}`
       },
-      body: JSON.stringify(newNote),
+      body: JSON.stringify(newNote)
     })
       .then(res => {
         if (!res.ok) {
@@ -69,8 +74,8 @@ class AddNote extends Component {
         return res.json();
       })
       .then(note => {
-        this.props.addNote(note);
-        this.props.history.push(`/folder/${note.folderId}`);
+        this.context.addNote(note);
+        this.props.history.push(`/folder/${note['folder_id']}`);
       })
       .catch(error => {
         console.error({error});
@@ -124,6 +129,17 @@ class AddNote extends Component {
   };
   render() {
     const folders = this.props.folders;
+    let getFolder = {};
+    if (!folders || folders.length <= 0) {
+      // Display a message or Show a Loading Gif here
+      return <div>Loading...</div>;
+    } else {
+      getFolder = findFolder(folders, this.state['folder_id']);
+    }
+    if (!getFolder) {
+      // Display a message or Show a Loading Gif here
+      return <div>Loading...</div>;
+    }
     return (
       <section className="AddNote">
         <h2>Create a note</h2>
@@ -155,7 +171,7 @@ class AddNote extends Component {
               <option value={null}>...</option>
               {folders.map(folder => (
                 <option key={folder.id} value={folder.id}>
-                  {folder.name}
+                  {folder.folder_name}
                 </option>
               ))}
             </select>
@@ -179,12 +195,4 @@ class AddNote extends Component {
   }
 }
 
-AddNote.propTypes = {
-  folders: p.arrayOf(
-    p.shape({
-      id: p.string.isRequired,
-      name: p.string.isRequired,
-    })
-  ),
-};
 export default withRouter(AddNote);

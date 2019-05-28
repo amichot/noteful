@@ -2,6 +2,7 @@
 import React, {Component} from 'react';
 import {withRouter} from 'react-router-dom';
 import PropTypes from 'prop-types';
+import config from '../config';
 //helper functions
 import {findFolder} from '../notes-helpers';
 //handle Errors
@@ -28,10 +29,6 @@ class UpdateNote extends Component {
     history: PropTypes.shape({
       push: PropTypes.func,
     }).isRequired,
-    id: PropTypes.number,
-    name: PropTypes.string,
-    folder_id: PropTypes.number,
-    content: PropTypes.string,
   };
 
   updateName(name) {
@@ -53,11 +50,15 @@ class UpdateNote extends Component {
       formValid: this.state.nameValid,
     });
   }
-
+  //prettier-ignore
   componentDidMount() {
     const {noteId} = this.props.match.params;
-    fetch('http://localhost:8000/api/note/' + noteId, {
+    fetch(config.API_ENDPOINT_NOTE + `/${noteId}`, {
       method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'authorization': `bearer ${config.API_KEY}`
+      }
     })
       .then(res => {
         if (!res.ok) return res.json().then(error => Promise.reject(error));
@@ -66,40 +67,40 @@ class UpdateNote extends Component {
       })
       .then(responseData => {
         this.updateName(responseData.name);
-        this.updateFolder(responseData.folder_id);
+        this.updateFolder(responseData['folder_id']);
         this.updateContent(responseData.content);
       })
       .catch(error => {
         console.error(error);
-      });
+      })
   }
-
+  //prettier-ignore
   handleSubmit = e => {
-    e.preventDefault();
     const newNote = {
       name: e.target['note-name'].value,
       content: e.target['note-content'].value,
-      folderId: e.target['note-folder-id'].value,
-      modified: new Date(),
+      folder_id: e.target['note-folder-id'].value
+      
     };
     const {noteId} = this.props.match.params;
-    fetch('https://localhost:8000/api/note/' + noteId, {
+    fetch(config.API_ENDPOINT_NOTE + `${noteId}`, {
       method: 'PATCH',
+      body: JSON.stringify(newNote),
       headers: {
         'content-type': 'application/json',
-      },
-      body: JSON.stringify(newNote),
+        'authorization': `Bearer ${config.API_KEY}`
+      }
+      
     })
       .then(res => {
-        console.log(res.json());
         if (!res.ok) {
           return res.json().then(e => Promise.reject(e));
         }
-        console.log(res.json());
         return res.json();
       })
       .then(note => {
-        this.context.updateNote(note);
+        this.context.updateNote(note)
+        this.props.history.push('/')
       })
       .catch(error => {
         console.error({error});
@@ -129,13 +130,18 @@ class UpdateNote extends Component {
   };
 
   render() {
-    const {folders} = setTimeout(() => this.props.folders, 3000);
-    console.log(folders);
-    const getFolder = setTimeout(
-      () => findFolder(folders, this.state.folder_id),
-      4000
-    );
-    console.log(folders);
+    const folders = this.props.folders;
+    let getFolder = {};
+    if (!folders || folders.length <= 0) {
+      // Display a message or Show a Loading Gif here
+      return <div>Loading...</div>;
+    } else {
+      getFolder = findFolder(folders, this.state['folder_id']);
+    }
+    if (!getFolder) {
+      // Display a message or Show a Loading Gif here
+      return <div>Loading...</div>;
+    }
     const {name} = this.state;
     return (
       <section className="AddNote">
@@ -169,12 +175,12 @@ class UpdateNote extends Component {
             <select
               id="note-folder-select"
               name="note-folder-id"
-              selected={getFolder.name}
+              selected={getFolder['folder_name']}
               onChange={e => this.updateFolder(e.target.value)}
             >
               {folders.map(folder => (
                 <option key={folder.id} value={folder.id}>
-                  {folder.name}
+                  {folder.folder_name}
                 </option>
               ))}
             </select>

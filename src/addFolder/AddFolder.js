@@ -2,6 +2,8 @@
 import React, {Component} from 'react';
 import {withRouter} from 'react-router-dom';
 import p from 'prop-types';
+//config
+import config from '../config';
 //handle Errors
 import ValidationError from '../errorboundary/ValidationError';
 //css
@@ -11,6 +13,7 @@ class AddFolder extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      error: null,
       name: '',
       nameValid: false,
       formValid: false,
@@ -33,22 +36,24 @@ class AddFolder extends Component {
   }
 
   static defaultProps = {
-    history: {
-      push: () => {},
-    },
+    history: p.shape({
+      push: p.func,
+    }).isRequired,
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
+  handleSubmit = (e, callback) => {
+    this.setState({error: null});
     const folder = {
-      name: e.target['folder-name'].value,
+      folder_name: e.target['folder-name'].value,
     };
-    fetch('http://localhost:8000/api/folder', {
+    //prettier-ignore
+    fetch(config.API_ENDPOINT_FOLDER, {
       method: 'POST',
+      body: JSON.stringify(folder),
       headers: {
         'content-type': 'application/json',
-      },
-      body: JSON.stringify(folder),
+        authorization: `bearer ${config.API_KEY}`
+      }
     })
       .then(res => {
         if (!res.ok) {
@@ -61,7 +66,8 @@ class AddFolder extends Component {
         this.props.history.push(`/folder/${folder.id}`);
       })
       .catch(error => {
-        console.error({error});
+        console.error({error})
+        this.setState({error})
       });
   };
 
@@ -75,8 +81,6 @@ class AddFolder extends Component {
       hasError = true;
     }
     this.props.folders.forEach(folder => {
-      console.log(folder.name);
-      console.log(fieldValue);
       if (folder.name === fieldValue) {
         fieldErrors.name = 'There is already a folder with this name';
         hasError = true;
@@ -128,7 +132,7 @@ class AddFolder extends Component {
 AddFolder.propTypes = {
   folders: p.arrayOf(
     p.shape({
-      id: p.string.isRequired,
+      id: p.number.isRequired,
       name: p.string.isRequired,
     })
   ),
