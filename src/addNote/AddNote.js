@@ -52,7 +52,6 @@ class AddNote extends Component {
   }
 
   handleSubmit = e => {
-    e.preventDefault();
     const newNote = {
       name: e.target['note-name'].value,
       content: e.target['note-content'].value,
@@ -129,14 +128,8 @@ class AddNote extends Component {
   };
   render() {
     const folders = this.props.folders;
-    let getFolder = {};
+    console.log(folders);
     if (!folders || folders.length <= 0) {
-      // Display a message or Show a Loading Gif here
-      return <div>Loading...</div>;
-    } else {
-      getFolder = findFolder(folders, this.state['folder_id']);
-    }
-    if (!getFolder) {
       // Display a message or Show a Loading Gif here
       return <div>Loading...</div>;
     }
@@ -171,7 +164,8 @@ class AddNote extends Component {
               <option value={null}>...</option>
               {folders.map(folder => (
                 <option key={folder.id} value={folder.id}>
-                  {folder.folder_name}
+                  {console.log(folder['folder_name'])}
+                  {folder['folder_name']}
                 </option>
               ))}
             </select>

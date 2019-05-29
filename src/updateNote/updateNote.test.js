@@ -1,14 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import AddNote from './AddNote';
+import UpdateNote from './UpdateNote';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
   const props = {
+    match: {params: {}},
     history: {
       push: () => {},
     },
   };
-  ReactDOM.render(<AddNote {...props} />, div);
+  ReactDOM.render(<UpdateNote {...props} />, div);
   ReactDOM.unmountComponentAtNode(div);
 });

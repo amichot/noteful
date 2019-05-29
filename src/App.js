@@ -49,13 +49,13 @@ class App extends Component {
       notes: [...this.state.notes, note],
     });
   };
-
+  //prettier-ignore
   componentDidMount() {
     fetch(config.API_ENDPOINT_FOLDER, {
       method: 'GET',
       headers: {
         'content-type': 'application/json',
-        Authorization: `Bearer ${config.API_KEY}`,
+        Authorization: `Bearer ${config.API_KEY}`
       },
     })
       .then(res => {
@@ -65,12 +65,12 @@ class App extends Component {
         return res.json();
       })
       .then(this.setFolder);
-
+    
     fetch(config.API_ENDPOINT_NOTE, {
       method: 'GET',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${config.API_KEY}`,
+        authorization: `Bearer ${config.API_KEY}`
       },
     })
       .then(res => {

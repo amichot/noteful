@@ -1,13 +1,13 @@
 //dependencies
 import React from 'react';
 import {Link} from 'react-router-dom';
-import config from '../config';
+import config from '../../config';
 //context
-import NotefulsContext from '../NotefulsContext';
+import NotefulsContext from '../../NotefulsContext';
 //css
 import './NoteItem.css';
 //helper functions
-import {getDate} from '../notes-helpers';
+import {getDate} from '../../notes-helpers';
 
 export default class NoteItem extends React.Component {
   static contextType = NotefulsContext;
@@ -19,13 +19,12 @@ export default class NoteItem extends React.Component {
   };
   //prettier-ignore
   deleteNoteRequest = e => {
-    e.preventDefault();
     const noteId = this.props.id;
     fetch(config.API_ENDPOINT_NOTE + `${noteId}`, {
       method: 'DELETE',
       headers: {
         'content-type': 'application/json',
-        'authorization': `Bearer ${config.API_KEY}`
+        'authorization': `bearer ${config.API_KEY}`
       }
     })
       .then(res => {
@@ -51,7 +50,9 @@ export default class NoteItem extends React.Component {
     const {name, id, modified} = this.props;
     return (
       <li className="NoteItem" key={id}>
-        <h3 className="NoteItem__title">{name}</h3>
+        <Link to={`/note/${this.props.id}`}>
+          <h3 className="NoteItem__title">{name}</h3>
+        </Link>
         <button
           className="Note__delete"
           type="button"

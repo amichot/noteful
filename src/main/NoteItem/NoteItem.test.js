@@ -1,17 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter} from 'react-router-dom';
-import FolderItem from './FolderItem';
+import NoteItem from './NoteItem';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
   const props = {
     id: '123',
-    folder_name: 'test title',
+    name: 'test title',
+    folder_id: 1,
+    content: 'test desciption',
+    onClickDelete: () => {},
   };
   ReactDOM.render(
     <BrowserRouter>
-      <FolderItem {...props} />
+      <NoteItem {...props} />
     </BrowserRouter>,
     div
   );

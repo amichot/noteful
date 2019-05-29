@@ -2,7 +2,7 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 //components
-import NoteItem from './NoteItem';
+import NoteItem from './NoteItem/NoteItem';
 //helperfunctions
 import {getNotesForFolder} from '../notes-helpers';
 //context
@@ -37,10 +37,10 @@ class MainMain extends Component {
           {getNotes.map(note => (
             <NoteItem key={note.id} {...note} />
           ))}
-          <Link to="/add-Note" type="button" className="add-Note-button">
-            Add Note
-          </Link>
         </ul>
+        <Link to="/add-Note" type="button" className="add-Note-button">
+          Add Note
+        </Link>
       </section>
     );
   }
