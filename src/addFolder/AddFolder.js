@@ -18,8 +18,8 @@ class AddFolder extends Component {
       nameValid: false,
       formValid: false,
       validationMessages: {
-        name: '',
-      },
+        name: ''
+      }
     };
   }
 
@@ -31,20 +31,20 @@ class AddFolder extends Component {
 
   formValid() {
     this.setState({
-      formValid: this.state.nameValid,
+      formValid: this.state.nameValid
     });
   }
 
   static defaultProps = {
     history: p.shape({
-      push: p.func,
-    }).isRequired,
+      push: p.func
+    }).isRequired
   };
 
   handleSubmit = (e, callback) => {
     this.setState({error: null});
     const folder = {
-      folder_name: e.target['folder-name'].value,
+      folder_name: e.target['folder-name'].value
     };
     //prettier-ignore
     fetch(config.API_ENDPOINT_FOLDER, {
@@ -90,7 +90,7 @@ class AddFolder extends Component {
     this.setState(
       {
         validationMessages: fieldErrors,
-        nameValid: !hasError,
+        nameValid: !hasError
       },
       this.formValid
     );
@@ -133,8 +133,8 @@ AddFolder.propTypes = {
   folders: p.arrayOf(
     p.shape({
       id: p.number.isRequired,
-      name: p.string.isRequired,
+      name: p.string.isRequired
     })
-  ),
+  )
 };
 export default withRouter(AddFolder);

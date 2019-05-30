@@ -18,17 +18,17 @@ class UpdateNote extends Component {
     nameValid: false,
     formValid: false,
     validationMessages: {
-      name: '',
-    },
+      name: ''
+    }
   };
 
   static propTypes = {
     match: PropTypes.shape({
-      params: PropTypes.object,
+      params: PropTypes.object
     }),
     history: PropTypes.shape({
-      push: PropTypes.func,
-    }).isRequired,
+      push: PropTypes.func
+    }).isRequired
   };
 
   updateName(name) {
@@ -47,7 +47,7 @@ class UpdateNote extends Component {
 
   formValid() {
     this.setState({
-      formValid: this.state.nameValid,
+      formValid: this.state.nameValid
     });
   }
   //prettier-ignore
@@ -123,7 +123,7 @@ class UpdateNote extends Component {
     this.setState(
       {
         validationMessages: fieldErrors,
-        nameValid: !hasError,
+        nameValid: !hasError
       },
       this.formValid
     );

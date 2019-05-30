@@ -19,16 +19,16 @@ class AddNote extends Component {
     formValid: false,
     validationMessages: {
       name: '',
-      folder: '',
-    },
+      folder: ''
+    }
   };
   static propTypes = {
     match: PropTypes.shape({
-      params: PropTypes.object,
+      params: PropTypes.object
     }),
     history: PropTypes.shape({
-      push: PropTypes.func,
-    }).isRequired,
+      push: PropTypes.func
+    }).isRequired
   };
 
   updateName(name) {
@@ -45,7 +45,7 @@ class AddNote extends Component {
 
   formValid() {
     this.setState({
-      formValid: this.state.nameValid && this.state.folderValid,
+      formValid: this.state.nameValid && this.state.folderValid
     });
   }
 
@@ -53,7 +53,7 @@ class AddNote extends Component {
     const newNote = {
       name: e.target['note-name'].value,
       content: e.target['note-content'].value,
-      folder_id: e.target['note-folder-id'].value,
+      folder_id: e.target['note-folder-id'].value
     };
     //prettier-ignore
     fetch(config.API_ENDPOINT_NOTE, {
@@ -95,7 +95,7 @@ class AddNote extends Component {
     this.setState(
       {
         validationMessages: fieldErrors,
-        nameValid: !hasError,
+        nameValid: !hasError
       },
       this.formValid
     );
@@ -119,7 +119,7 @@ class AddNote extends Component {
     this.setState(
       {
         validationMessages: fieldErrors,
-        folderValid: !hasError,
+        folderValid: !hasError
       },
       this.formValid
     );

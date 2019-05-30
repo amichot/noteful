@@ -21,7 +21,7 @@ class App extends Component {
   state = {
     notes: [],
     folders: [],
-    error: null,
+    error: null
   };
 
   setFolder = folders => {
@@ -34,24 +34,23 @@ class App extends Component {
 
   handleDeleteNote = noteId => {
     this.setState({
-      notes: this.state.notes.filter(note => note.id !== noteId),
+      notes: this.state.notes.filter(note => note.id !== noteId)
     });
   };
 
   handleAddFolder = folder => {
     this.setState({
-      folders: [...this.state.folders, folder],
+      folders: [...this.state.folders, folder]
     });
   };
 
   handleAddNote = note => {
     this.setState({
-      notes: [...this.state.notes, note],
+      notes: [...this.state.notes, note]
     });
   };
   //prettier-ignore
   componentDidMount() {
-    console.log(config)
     fetch(config.API_ENDPOINT_FOLDER, {
       method: 'GET',
       headers: {
@@ -88,7 +87,7 @@ class App extends Component {
       note.id === updatedNote.id ? updatedNote : note
     );
     this.setState({
-      notes: newNotes,
+      notes: newNotes
     });
   };
 
@@ -167,7 +166,7 @@ class App extends Component {
       deleteNote: this.handleDeleteNote,
       addFolder: this.handleAddFolder,
       addNote: this.handleAddNote,
-      updateNote: this.handleUpdateNote,
+      updateNote: this.handleUpdateNote
     };
 
     return (
