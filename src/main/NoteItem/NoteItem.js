@@ -14,8 +14,8 @@ export default class NoteItem extends React.Component {
   static defaultProps = {
     onDeleteNote: () => {},
     history: {
-      push: () => {},
-    },
+      push: () => {}
+    }
   };
   //prettier-ignore
   deleteNoteRequest = e => {
@@ -24,17 +24,23 @@ export default class NoteItem extends React.Component {
       method: 'DELETE',
       headers: {
         'content-type': 'application/json',
-        'authorization': `bearer ${config.API_KEY}`
+        'Authorization': `bearer ${config.API_KEY}`
       }
     })
       .then(res => {
+        console.log(1, res)
         if (!res.ok) return res.json().then(e => Promise.reject(e));
-        return res.json()
+        console.log(2)
       })
       .then(() => {
+        console.log(3)
         this.context.deleteNote(noteId)
+        console.log(4)
+
         // allow parent to perform extra behaviour
         this.props.onDeleteNote(noteId)
+        console.log(5)
+
       })
       .catch(error => {
         console.error({error})

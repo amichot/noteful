@@ -35,7 +35,7 @@
     "singleQuote": true,
     "semi": true,
     "tabWidth": 2,
-    "trailingComma": "es5"
+    "trailingComma": "none"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0"
