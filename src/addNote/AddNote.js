@@ -5,9 +5,7 @@ import PropTypes from 'prop-types';
 //config
 import config from '../config';
 //helper function
-import {findFolder} from '../notes-helpers';
-//context
-import NotefulsContext from '../NotefulsContext';
+
 //handle Errors
 import ValidationError from '../errorboundary/ValidationError';
 //css

@@ -51,6 +51,7 @@ class App extends Component {
   };
   //prettier-ignore
   componentDidMount() {
+    console.log(config)
     fetch(config.API_ENDPOINT_FOLDER, {
       method: 'GET',
       headers: {
